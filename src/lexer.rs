@@ -41,6 +41,19 @@ impl Lexer {
         });
     }
 
+    fn check_next_token(&mut self, ch: char) -> bool {
+        if self.check_at_end() {
+            return false
+        }
+
+        if self.source_code[self.read_pos] == char {
+            self.read_pos();
+            return true
+        }
+
+        return false
+    }
+
     fn scan_token(&mut self) {
         let ch = self.read_token();
         match ch {
@@ -55,10 +68,38 @@ impl Lexer {
             ';' => self.add_token(TokenType::Semicolon, String::from(";")),
             '*' => self.add_token(TokenType::Star, String::from("*")),
             // TODO: Add support for multi character literal.
-            '!' => self.add_token(TokenType::Star, String::from("*")),
-            '=' => self.add_token(TokenType::Star, String::from("*")),
-            '<' => self.add_token(TokenType::Star, String::from("*")),
-            '>' => self.add_token(TokenType::Star, String::from("*")),
+            '!' => {
+                if self.check_next_token('=') {
+                    self.add_token(TokenType::BangEqual, String::from("!="))
+                }
+                else {
+                    self.add_token(TokenType::Bang, String::from("!"))
+                }
+            },
+            '=' => {
+                if self.check_next_token('=') {
+                    self.add_token(TokenType::EqualEqual, String::from("=="))
+                }
+                    else {
+                        self.add_token(TokenType::Equal, String::from("="))
+                    }
+            },
+            '<' => {
+                if self.check_next_token('=') {
+                    self.add_token(TokenType::LesserEqual, String::from("<="))
+                }
+                    else {
+                        self.add_token(TokenType::Lesser, String::from("<"))
+                    }
+            },
+            '>' => {
+                if self.check_next_token('=') {
+                    self.add_token(TokenType::GreaterEqual, String::from(">="))
+                }
+                    else {
+                        self.add_token(TokenType::Greater, String::from(">"))
+                    }
+            },
             _ => panic!("{}, Unexpected character.{}", self.line, ch)
         }
     }
