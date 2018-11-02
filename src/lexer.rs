@@ -22,7 +22,7 @@ impl Lexer {
         }
     }
 
-    fn check_at_end(self) -> bool{
+    fn check_at_end(&self) -> bool{
         self.read_pos >= self.source_code.len()
     }
 
@@ -32,20 +32,27 @@ impl Lexer {
     }
 
     fn add_token(&mut self, token_type: TokenType, token_value: String) {
-        let value: String = self.source_code[self.start_pos..self.read_pos].into_iter().collect();
         let line = self.line;
         self.tokens.push(Token{
-            value,
+            value: token_value,
             token_type,
             line
         });
+        self.start_pos = self.read_pos - 1;
     }
 
-    fn peek(self) -> char {
+    fn peek(&self) -> char {
         if self.check_at_end() {
-            None
+            return '\0';
         }
         self.source_code[self.read_pos]
+    }
+
+    fn peek_next(&self) -> char {
+        if self.read_pos + 1 >= self.source_code.len() {
+            return '\0';
+        }
+        self.source_code[self.read_pos + 1]
     }
 
     fn check_next_token(&mut self, ch: char) -> bool {
@@ -53,12 +60,55 @@ impl Lexer {
             return false
         }
 
-        if self.source_code[self.read_pos] == char {
-            self.read_pos();
+        if self.source_code[self.read_pos] == ch {
+            self.read_token();
             return true
         }
 
         return false
+    }
+
+    fn check_if_digit(ch: char) -> bool {
+        if ch >= '0' && ch <= '9' {
+            return true;
+        }
+        false
+    }
+
+    fn check_if_alpha(ch: char) -> bool {
+        if (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') {
+            return true;
+        }
+        return false
+    }
+
+    fn check_if_alphanumeric(ch: char) -> bool {
+        if Lexer::check_if_digit(ch) || Lexer::check_if_alpha(ch) {
+            return true;
+        }
+        return false
+    }
+
+    fn read_identifier(identifier: &String) -> TokenType {
+        match identifier.as_ref() {
+            "and" => TokenType::And,
+            "class" => TokenType::Class,
+            "else" => TokenType::Else,
+            "false" => TokenType::False,
+            "for" => TokenType::For,
+            "func" => TokenType::Func,
+            "if" => TokenType::If,
+            "null" => TokenType::Null,
+            "or" => TokenType::Or,
+            "print" => TokenType::Print,
+            "return" => TokenType::Return,
+            "super" => TokenType::Super,
+            "this" => TokenType::This,
+            "true" => TokenType::True,
+            "var" => TokenType::Var,
+            "while" => TokenType::While,
+            _ => TokenType::Identifier
+        }
     }
 
     fn scan_token(&mut self) {
@@ -105,7 +155,7 @@ impl Lexer {
             '/' => {
                 if self.check_next_token('/') {
                     // It is a comment. Skip till newline.
-                    while self.check_at_end() && self.peek() != '\n' {
+                    while !self.check_at_end() && self.peek() != '\n' {
                         self.read_token();
                     }
                 }
@@ -115,8 +165,60 @@ impl Lexer {
             },
             '\n' => self.line += 1,
             // Do nothing for spaces.
-            ' ' | '\t' | '\r' => None,
-            _ => panic!("{}, Unexpected character.{}", self.line, ch)
+            ' ' | '\t' | '\r' => (),
+            '"' => {
+                while !self.check_at_end() && self.peek() != '"' {
+                    if self.peek() == '\n' {
+                        self.line += 1;
+                    }
+                    self.read_token();
+                }
+                if self.check_at_end() {
+                    panic!("{}, Unterminated String.", self.line)
+                } else {
+                    let value: String = self.source_code[self.start_pos + 1..self.read_pos - 1]
+                                        .into_iter().collect();
+                    self.add_token(TokenType::String, value)
+                }
+            },
+            _ => {
+                if Lexer::check_if_digit(ch) {
+                    while !self.check_at_end() && Lexer::check_if_digit(self.peek()) {
+                        self.read_token();
+                    }
+                    // Decimal number
+                    if self.peek() == '.' && Lexer::check_if_digit(self.peek_next()) {
+                        self.read_token(); // Consume .
+                        while !self.check_at_end() && Lexer::check_if_digit(self.peek()) {
+                            self.read_token();
+                        }
+                    }
+
+                    let value: String = self.source_code[self.start_pos..self.read_pos].into_iter()
+                                        .collect();
+                    self.add_token(TokenType::Number, value)
+
+                } else if Lexer::check_if_alpha(ch) {
+                    while Lexer::check_if_alphanumeric(self.peek()) {
+                        self.read_token();
+                    }
+                    let value: String = self.source_code[self.start_pos..self.read_pos].into_iter()
+                        .collect();
+
+                    // TokenType can be reserved word too.
+                    self.add_token(Lexer::read_identifier(&value), value)
+                } else {
+                    panic!("{}, Unexpected character.{}", self.line, ch)
+                }
+            }
         }
+    }
+
+    // TODO: Complete this function to scan whole code.
+    pub fn lex_source_code(&mut self) -> Vec<Token> {
+        while !self.check_at_end() {
+            self.scan_token();
+        }
+        self.tokens
     }
 }

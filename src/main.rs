@@ -37,7 +37,9 @@ fn run_repl() {
         let mut code_line = String::new();
         io::stdin().read_line(&mut code_line).expect("Can't take input. Aborting.");
 
-        let lexer_object = lexer::Lexer::new(&code_line.chars().collect());
+        let mut lexer_object = lexer::Lexer::new(&code_line.chars().collect());
+        // TODO: Implement display trait to print onto the screen.
+        println!("{}={}", lexer_object.scan_token());
     }
 }
 

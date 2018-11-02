@@ -43,7 +43,7 @@ pub enum TokenType {
     Func,
     For,
     If,
-    Nil,
+    Null,
     Or,
     Print,
     Return,
