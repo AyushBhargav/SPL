@@ -1,11 +1,12 @@
 
 
-struct Token {
-    value: String,
-    token_type: TokenType
+pub struct Token {
+    pub value: String,
+    pub token_type: TokenType,
+    pub line: i32
 }
 
-enum TokenType {
+pub enum TokenType {
     // Single-character tokens.
     LeftParen,
     RightParen,

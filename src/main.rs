@@ -1,4 +1,5 @@
 pub mod lexer;
+pub mod token;
 
 use std::env;
 use std::process;
