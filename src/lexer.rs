@@ -41,6 +41,13 @@ impl Lexer {
         });
     }
 
+    fn peek(self) -> char {
+        if self.check_at_end() {
+            None
+        }
+        self.source_code[self.read_pos]
+    }
+
     fn check_next_token(&mut self, ch: char) -> bool {
         if self.check_at_end() {
             return false
@@ -67,39 +74,48 @@ impl Lexer {
             '+' => self.add_token(TokenType::Plus, String::from("+")),
             ';' => self.add_token(TokenType::Semicolon, String::from(";")),
             '*' => self.add_token(TokenType::Star, String::from("*")),
-            // TODO: Add support for multi character literal.
             '!' => {
                 if self.check_next_token('=') {
                     self.add_token(TokenType::BangEqual, String::from("!="))
-                }
-                else {
+                } else {
                     self.add_token(TokenType::Bang, String::from("!"))
                 }
             },
             '=' => {
                 if self.check_next_token('=') {
                     self.add_token(TokenType::EqualEqual, String::from("=="))
+                } else {
+                    self.add_token(TokenType::Equal, String::from("="))
                 }
-                    else {
-                        self.add_token(TokenType::Equal, String::from("="))
-                    }
             },
             '<' => {
                 if self.check_next_token('=') {
                     self.add_token(TokenType::LesserEqual, String::from("<="))
+                } else {
+                    self.add_token(TokenType::Lesser, String::from("<"))
                 }
-                    else {
-                        self.add_token(TokenType::Lesser, String::from("<"))
-                    }
             },
             '>' => {
                 if self.check_next_token('=') {
                     self.add_token(TokenType::GreaterEqual, String::from(">="))
+                } else {
+                    self.add_token(TokenType::Greater, String::from(">"))
                 }
-                    else {
-                        self.add_token(TokenType::Greater, String::from(">"))
-                    }
             },
+            '/' => {
+                if self.check_next_token('/') {
+                    // It is a comment. Skip till newline.
+                    while self.check_at_end() && self.peek() != '\n' {
+                        self.read_token();
+                    }
+                }
+                else {
+                    self.add_token(TokenType::Slash, String::from("/"))
+                }
+            },
+            '\n' => self.line += 1,
+            // Do nothing for spaces.
+            ' ' | '\t' | '\r' => None,
             _ => panic!("{}, Unexpected character.{}", self.line, ch)
         }
     }
