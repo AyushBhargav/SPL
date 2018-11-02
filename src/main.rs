@@ -24,7 +24,8 @@ fn run_file(file_path: &String) {
     let mut content_buffer = String::new();
     file.read_to_string(&mut content_buffer).expect("File is not parsable.");
 
-    run(content_buffer);
+    // Lexer to scan and tokenize the characters.
+    let lexer_object = lexer::Lexer::new(&content_buffer.chars().collect());
 }
 
 fn run_repl() {
@@ -34,7 +35,8 @@ fn run_repl() {
         io::stdout().flush().expect("Output error.");
         let mut code_line = String::new();
         io::stdin().read_line(&mut code_line).expect("Can't take input. Aborting.");
-        run(code_line);
+
+        let lexer_object = lexer::Lexer::new(&code_line.chars().collect());
     }
 }
 
