@@ -1,6 +1,0 @@
-[package]
-name = "spl"
-version = "0.0.1"
-authors = ["Ayush Bhargav <ab.ayushbhargav0207@gmail.com>"]
-
-[dependencies]
