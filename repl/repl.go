@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"spl/lexer"
 )
 
 // Repl structure denotes REPL shell and it's respective attributes.
@@ -23,6 +24,7 @@ func (repl *Repl) Run() {
 			os.Exit(1)
 		}
 		code := scanner.Text()
-		fmt.Println(code)
+		lexer := lexer.New()
+		lexer.Scan(code)
 	}
 }

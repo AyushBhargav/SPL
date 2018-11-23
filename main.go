@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"spl/lexer"
 	"spl/repl"
 )
 
@@ -20,7 +21,8 @@ func main() {
 			os.Exit(1)
 		}
 		sourceCode := string(bytes)
-		fmt.Println(sourceCode)
+		lexer := lexer.New()
+		lexer.Scan(sourceCode)
 	default:
 		fmt.Println("Usage: spl [file.spl]")
 		os.Exit(0)
