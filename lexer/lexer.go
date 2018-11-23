@@ -12,8 +12,9 @@ func New() Lexer {
 }
 
 // Scan scans the source code to produce tokens.
-func (lexer *Lexer) Scan(sourceCode string) {
+func (lexer *Lexer) Scan(sourceCode string) error {
 	fmt.Println(sourceCode)
+	return nil
 }
 
 type interpreterError struct {

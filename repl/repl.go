@@ -25,6 +25,8 @@ func (repl *Repl) Run() {
 		}
 		code := scanner.Text()
 		lexer := lexer.New()
-		lexer.Scan(code)
+		if codeError := lexer.Scan(code); codeError != nil {
+			fmt.Println(codeError)
+		}
 	}
 }

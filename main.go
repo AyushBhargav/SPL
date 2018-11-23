@@ -22,7 +22,9 @@ func main() {
 		}
 		sourceCode := string(bytes)
 		lexer := lexer.New()
-		lexer.Scan(sourceCode)
+		if codeError := lexer.Scan(sourceCode); codeError != nil {
+			fmt.Println(codeError)
+		}
 	default:
 		fmt.Println("Usage: spl [file.spl]")
 		os.Exit(0)
