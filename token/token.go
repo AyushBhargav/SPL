@@ -60,16 +60,28 @@ const (
 	False
 	// Func : func keyword
 	Func
-	FOR
-	IF
-	NIL
-	OR
-	PRINT
-	RETURN
-	SUPER
-	THIS
-	TRUE
-	VAR
-	WHILE
-	EOF
+	// For : for keyword
+	For
+	// If : if keyword
+	If
+	// Nil : nil keyword
+	Nil
+	// Or : or keyword
+	Or
+	// Print : print keyword
+	Print
+	// Return : return keyword
+	Return
+	// Super : super keyword
+	Super
+	// This : this keyword
+	This
+	// True : true literal
+	True
+	// Var : var keyword
+	Var
+	// While : while keyword
+	While
+	// Eof : end of file indicator
+	Eof
 )
