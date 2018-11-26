@@ -21,8 +21,8 @@ func main() {
 			os.Exit(1)
 		}
 		sourceCode := string(bytes)
-		lexer := lexer.New()
-		if codeError := lexer.Scan(sourceCode); codeError != nil {
+		lexer := lexer.New(sourceCode)
+		if codeError := lexer.Scan(); codeError != nil {
 			fmt.Println(codeError)
 		}
 	default:

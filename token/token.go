@@ -82,6 +82,17 @@ const (
 	Var
 	// While : while keyword
 	While
-	// Eof : end of file indicator
-	Eof
+	// EOF : end of file indicator
+	EOF
 )
+
+// Type for token types.
+// TokenType denotes the type of the token. It is to by pass the enum constrain in go.
+type Type int
+
+// Token is structure for token details.
+type Token struct {
+	TokenType Type
+	Lexeme    string
+	Line      int
+}
