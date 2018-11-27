@@ -29,7 +29,7 @@ type interpreterError struct {
 	message string
 }
 
-func (i *interpreterError) Error() string {
+func (i interpreterError) Error() string {
 	return fmt.Sprintf("Line: %d, Error: %s", i.line, i.message)
 }
 
@@ -74,7 +74,6 @@ func (lexer *Lexer) scanToken() error {
 	case '*':
 		lexer.addToken(token.Star)
 	default:
-		// Correct it.
 		return interpreterError{line: lexer.line, message: fmt.Sprintf("Token: %s, Line: %d", string(c), lexer.line)}
 	}
 	return nil
