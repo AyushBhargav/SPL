@@ -106,6 +106,8 @@ func (lexer *Lexer) scanToken() error {
 				lexer.advance()
 			}
 		}
+	case '"':
+		return lexer.getString()
 	case ' ':
 	case '\r':
 	case '\t':
@@ -147,4 +149,23 @@ func (lexer *Lexer) peek() byte {
 		return '\n'
 	}
 	return lexer.sourceCode[lexer.current]
+}
+
+func (lexer *Lexer) getString() error {
+	for lexer.peek() != '"' && !lexer.isAtEnd() {
+		if lexer.peek() == '\n' {
+			lexer.line++
+		}
+		lexer.advance()
+	}
+	if lexer.isAtEnd() {
+		return interpreterError{line: lexer.line, message: "String not terminated."}
+	}
+	// Remove other "
+	lexer.advance()
+
+	// Remove the surround quotes.
+	value := lexer.sourceCode[lexer.start+1 : lexer.current-1]
+	lexer.addToken() // add code here.
+	return nil
 }
