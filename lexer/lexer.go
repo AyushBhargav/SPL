@@ -73,6 +73,44 @@ func (lexer *Lexer) scanToken() error {
 		lexer.addToken(token.Semicolon)
 	case '*':
 		lexer.addToken(token.Star)
+	case '!':
+		if lexer.match('=') {
+			lexer.addToken(token.BangEqual)
+		} else {
+			lexer.addToken(token.Bang)
+		}
+	case '=':
+		if lexer.match('=') {
+			lexer.addToken(token.EqualEqual)
+		} else {
+			lexer.addToken(token.Equal)
+		}
+	case '<':
+		if lexer.match('=') {
+			lexer.addToken(token.LessEqual)
+		} else if lexer.match('-') {
+			lexer.addToken(token.Insertion)
+		} else {
+			lexer.addToken(token.Less)
+		}
+	case '>':
+		if lexer.match('=') {
+			lexer.addToken(token.GreaterEqual)
+		} else {
+			lexer.addToken(token.Greater)
+		}
+	case '/':
+		// Avoid comment.
+		if lexer.match('/') {
+			for lexer.peek() != '\n' && !lexer.isAtEnd() {
+				lexer.advance()
+			}
+		}
+	case ' ':
+	case '\r':
+	case '\t':
+	case '\n':
+		lexer.line++
 	default:
 		return interpreterError{line: lexer.line, message: fmt.Sprintf("Token: %s, Line: %d", string(c), lexer.line)}
 	}
@@ -91,4 +129,22 @@ func (lexer *Lexer) addToken(tokenType token.Type) {
 		Lexeme:    subText,
 		Line:      lexer.line,
 	})
+}
+
+func (lexer *Lexer) match(expected byte) bool {
+	if lexer.isAtEnd() {
+		return false
+	}
+	if lexer.sourceCode[lexer.current] != expected {
+		return false
+	}
+	lexer.current++
+	return true
+}
+
+func (lexer *Lexer) peek() byte {
+	if lexer.isAtEnd() {
+		return '\n'
+	}
+	return lexer.sourceCode[lexer.current]
 }
