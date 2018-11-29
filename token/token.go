@@ -40,8 +40,6 @@ const (
 	Less
 	// LessEqual : <=
 	LessEqual
-	// Insertion : <-
-	Insertion
 
 	// Identifier : Any variable
 	Identifier

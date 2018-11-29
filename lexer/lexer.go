@@ -88,8 +88,6 @@ func (lexer *Lexer) scanToken() error {
 	case '<':
 		if lexer.match('=') {
 			lexer.addToken(token.LessEqual)
-		} else if lexer.match('-') {
-			lexer.addToken(token.Insertion)
 		} else {
 			lexer.addToken(token.Less)
 		}
@@ -114,7 +112,16 @@ func (lexer *Lexer) scanToken() error {
 	case '\n':
 		lexer.line++
 	default:
-		return interpreterError{line: lexer.line, message: fmt.Sprintf("Token: %s, Line: %d", string(c), lexer.line)}
+		if isDigit(c) {
+			return lexer.getNumber()
+		}
+		if isAlphabetic(c) {
+			return lexer.getIdentifier()
+		}
+		return interpreterError{
+			line:    lexer.line,
+			message: fmt.Sprintf("Token: %s, Line: %d", string(c), lexer.line),
+		}
 	}
 	return nil
 }
@@ -129,6 +136,14 @@ func (lexer *Lexer) addToken(tokenType token.Type) {
 	lexer.tokens = append(lexer.tokens, token.Token{
 		TokenType: tokenType,
 		Lexeme:    subText,
+		Line:      lexer.line,
+	})
+}
+
+func (lexer *Lexer) addValueToken(tokenType token.Type, value string) {
+	lexer.tokens = append(lexer.tokens, token.Token{
+		TokenType: tokenType,
+		Lexeme:    value,
 		Line:      lexer.line,
 	})
 }
@@ -151,6 +166,13 @@ func (lexer *Lexer) peek() byte {
 	return lexer.sourceCode[lexer.current]
 }
 
+func (lexer *Lexer) peekNext() byte {
+	if lexer.current+1 == len(lexer.sourceCode) {
+		return '\n'
+	}
+	return lexer.sourceCode[lexer.current+1]
+}
+
 func (lexer *Lexer) getString() error {
 	for lexer.peek() != '"' && !lexer.isAtEnd() {
 		if lexer.peek() == '\n' {
@@ -166,6 +188,42 @@ func (lexer *Lexer) getString() error {
 
 	// Remove the surround quotes.
 	value := lexer.sourceCode[lexer.start+1 : lexer.current-1]
-	lexer.addToken() // add code here.
+	lexer.addValueToken(token.String, value) // add code here.
 	return nil
+}
+
+func (lexer *Lexer) getNumber() error {
+	for isDigit(lexer.peek()) {
+		lexer.advance()
+	}
+	// It may be '.'. So check for it.
+	if lexer.peek() == '.' && isDigit(lexer.peekNext()) {
+		lexer.advance() // Remove '.'
+		for isDigit(lexer.peek()) {
+			lexer.advance()
+		}
+	}
+	value := lexer.sourceCode[lexer.start:lexer.current]
+	lexer.addValueToken(token.Number, value)
+	return nil
+}
+
+func (lexer *Lexer) getIdentifier() error {
+	for isAlphanumeric(lexer.peek()) {
+		lexer.advance()
+	}
+	lexer.addToken(token.Identifier)
+	return nil
+}
+
+func isDigit(c byte) bool {
+	return c >= '0' && c <= '9'
+}
+
+func isAlphabetic(c byte) bool {
+	return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c == '_')
+}
+
+func isAlphanumeric(c byte) bool {
+	return isDigit(c) || isAlphabetic(c)
 }
