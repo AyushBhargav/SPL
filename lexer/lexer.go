@@ -21,7 +21,15 @@ func New(sourceCode string) Lexer {
 
 // Scan scans the source code to produce tokens.
 func (lexer *Lexer) Scan() error {
-	return nil
+	return lexer.scanTokens()
+}
+
+// DisplayTokens prints the scanned tokens on console.
+func (lexer *Lexer) DisplayTokens() {
+	fmt.Println("Displaying tokens")
+	for _, token := range lexer.tokens {
+		fmt.Printf("(%s:Type-%d) Line: %d\n", token.Lexeme, token.TokenType, token.Line)
+	}
 }
 
 type interpreterError struct {
@@ -33,17 +41,20 @@ func (i interpreterError) Error() string {
 	return fmt.Sprintf("Line: %d, Error: %s", i.line, i.message)
 }
 
-func (lexer *Lexer) scanTokens() []token.Token {
+func (lexer *Lexer) scanTokens() error {
 	for !lexer.isAtEnd() {
 		lexer.start = lexer.current
-		lexer.scanToken()
+		err := lexer.scanToken()
+		if err != nil {
+			return err
+		}
 	}
 	lexer.tokens = append(lexer.tokens, token.Token{
 		TokenType: token.EOF,
 		Lexeme:    "",
 		Line:      lexer.line,
 	})
-	return lexer.tokens
+	return nil
 }
 
 func (lexer *Lexer) isAtEnd() bool {
@@ -132,7 +143,7 @@ func (lexer *Lexer) advance() byte {
 }
 
 func (lexer *Lexer) addToken(tokenType token.Type) {
-	subText := lexer.sourceCode[lexer.start : lexer.current-1]
+	subText := lexer.sourceCode[lexer.start:lexer.current] // Changed here.
 	lexer.tokens = append(lexer.tokens, token.Token{
 		TokenType: tokenType,
 		Lexeme:    subText,
@@ -187,11 +198,8 @@ func (lexer *Lexer) getString() error {
 	lexer.advance()
 
 	// Remove the surround quotes.
-	value := lexer.sourceCode[lexer.start+1 : lexer.current-1]
-	if valueType, found := token.KeywordsMap[value]; !found {
-		lexer.addValueToken(valueType, value)
-	}
-	lexer.addValueToken(token.Identifier, value)
+	value := lexer.sourceCode[lexer.start+1 : lexer.current-1] // Changed here
+	lexer.addValueToken(token.String, value)
 	return nil
 }
 
@@ -215,8 +223,12 @@ func (lexer *Lexer) getIdentifier() error {
 	for isAlphanumeric(lexer.peek()) {
 		lexer.advance()
 	}
-	value := lexer.sourceCode[lexer.start : lexer.current-1]
-	lexer.addValueToken(token.Identifier, value)
+	value := lexer.sourceCode[lexer.start:lexer.current] // Changed here
+	if valueType, found := token.KeywordsMap[value]; found {
+		lexer.addValueToken(valueType, value)
+	} else {
+		lexer.addValueToken(token.Identifier, value)
+	}
 	return nil
 }
 

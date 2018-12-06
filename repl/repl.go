@@ -28,5 +28,7 @@ func (repl *Repl) Run() {
 		if codeError := lexer.Scan(); codeError != nil {
 			fmt.Println(codeError)
 		}
+		// TODO: Remove it after debugging.
+		lexer.DisplayTokens()
 	}
 }
