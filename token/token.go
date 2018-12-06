@@ -94,3 +94,23 @@ type Token struct {
 	Lexeme    string
 	Line      int
 }
+
+// KeywordsMap maps string literal with token type for keywords.
+var KeywordsMap = map[string]Type{
+	"class":  Class,
+	"and":    And,
+	"else":   Else,
+	"false":  False,
+	"for":    For,
+	"func":   Func,
+	"if":     If,
+	"nil":    Nil,
+	"or":     Or,
+	"print":  Print,
+	"return": Return,
+	"super":  Super,
+	"this":   This,
+	"true":   True,
+	"var":    Var,
+	"while":  While,
+}

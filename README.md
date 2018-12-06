@@ -5,10 +5,10 @@
 ### General Syntax and semantics
 Language will support **dynamic typing** and syntactically will be very similar to the likes of JavaScript and Python but with in-built support for data structures like trees and graphs. Language should look like the general algorithm pseudocode.
 ```
-x <- 0
-factorial <- 1
+x = 0
+factorial = 1
 while x < 5 {
-    factorial <- factorial * x
+    factorial = factorial * x
 }
 print factorial
 ```
@@ -16,8 +16,8 @@ print factorial
 #### Arrays
 Arrays are mutable by default.
 ```
-arr <- [1, 2, 3]
-arr <- arr + [4, 5] // [1, 2, 3, 4, 5]
+arr = [1, 2, 3]
+arr = arr + [4, 5] // [1, 2, 3, 4, 5]
 ```
 #### Hash
 ```

@@ -188,7 +188,10 @@ func (lexer *Lexer) getString() error {
 
 	// Remove the surround quotes.
 	value := lexer.sourceCode[lexer.start+1 : lexer.current-1]
-	lexer.addValueToken(token.String, value) // add code here.
+	if valueType, found := token.KeywordsMap[value]; !found {
+		lexer.addValueToken(valueType, value)
+	}
+	lexer.addValueToken(token.Identifier, value)
 	return nil
 }
 
@@ -212,7 +215,8 @@ func (lexer *Lexer) getIdentifier() error {
 	for isAlphanumeric(lexer.peek()) {
 		lexer.advance()
 	}
-	lexer.addToken(token.Identifier)
+	value := lexer.sourceCode[lexer.start : lexer.current-1]
+	lexer.addValueToken(token.Identifier, value)
 	return nil
 }
 
