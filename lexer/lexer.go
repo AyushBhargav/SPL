@@ -143,7 +143,7 @@ func (lexer *Lexer) advance() byte {
 }
 
 func (lexer *Lexer) addToken(tokenType token.Type) {
-	subText := lexer.sourceCode[lexer.start:lexer.current] // Changed here.
+	subText := lexer.sourceCode[lexer.start:lexer.current]
 	lexer.tokens = append(lexer.tokens, token.Token{
 		TokenType: tokenType,
 		Lexeme:    subText,
@@ -198,7 +198,7 @@ func (lexer *Lexer) getString() error {
 	lexer.advance()
 
 	// Remove the surround quotes.
-	value := lexer.sourceCode[lexer.start+1 : lexer.current-1] // Changed here
+	value := lexer.sourceCode[lexer.start+1 : lexer.current-1]
 	lexer.addValueToken(token.String, value)
 	return nil
 }
@@ -223,7 +223,7 @@ func (lexer *Lexer) getIdentifier() error {
 	for isAlphanumeric(lexer.peek()) {
 		lexer.advance()
 	}
-	value := lexer.sourceCode[lexer.start:lexer.current] // Changed here
+	value := lexer.sourceCode[lexer.start:lexer.current]
 	if valueType, found := token.KeywordsMap[value]; found {
 		lexer.addValueToken(valueType, value)
 	} else {
